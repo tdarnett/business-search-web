@@ -108,21 +108,21 @@ const FileUpload = (props) => {
       formData.append('file', file);
 
       try {
-        await axios.post(uploadURL, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            onUploadProgress: progressEvent => {
-                setUploadPercentage(
-                    parseInt(
-                        Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                    )
-                );
+        // await axios.post(uploadURL, formData, {
+        //     headers: {
+        //         'Content-Type': 'multipart/form-data'
+        //     },
+        //     onUploadProgress: progressEvent => {
+        //         setUploadPercentage(
+        //             parseInt(
+        //                 Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        //             )
+        //         );
 
-                // Clear percentage
-                setTimeout(() => setUploadPercentage(0), 10000);
-            }
-        });
+        //         // Clear percentage
+        //         setTimeout(() => setUploadPercentage(0), 10000);
+        //     }
+        // });
 
         //   const { filename, filePath } = res.data;
 

@@ -2,10 +2,13 @@ import React, { useState } from "react"
 import styled from "styled-components"
 import { graphql, useStaticQuery } from "gatsby"
 import Img from "gatsby-image"
+import {loadStripe} from '@stripe/stripe-js';
 
 import { Container } from "../global"
 import FileUpload from "../FileUpload"
-import Checkout from "../Checkout"
+import StripeCheckout from "../StripeCheckout"
+
+const stripePromise = loadStripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
 
 const Header = () => {
   const data = useStaticQuery(graphql`
@@ -34,7 +37,7 @@ const Header = () => {
             <h2>
               Upload your list of business leads and get their business information in one fell swoop.
             </h2>
-            {!fileUploadComplete ? <FileUpload setFileUploadComplete={setFileUploadComplete}/> : <Checkout></Checkout>}
+            {!fileUploadComplete ? <FileUpload setFileUploadComplete={setFileUploadComplete}/> : <StripeCheckout stripePromise={stripePromise}/>}
 
           </HeaderTextGroup>
           <ImageWrapper>
