@@ -23,7 +23,7 @@ const Header = () => {
     }
   `)
 
-  const [fileUploadComplete, setFileUploadComplete] = useState(false); // TODO use step complete instead
+  const [uploadedFilename, setUploadedFilename] = useState(""); // TODO use step complete instead
   
   return (
     <HeaderWrapper id="top">
@@ -33,11 +33,11 @@ const Header = () => {
             <Subtitle>Upload</Subtitle>
             <h1>
               Speed up your business development.
-            </h1> 
+            </h1>
             <h2>
               Upload your list of business leads and get their business information in one fell swoop.
             </h2>
-            {!fileUploadComplete ? <FileUpload setFileUploadComplete={setFileUploadComplete}/> : <StripeCheckout stripePromise={stripePromise}/>}
+            {uploadedFilename === "" ? <FileUpload setUploadedFilename={setUploadedFilename}/> : <StripeCheckout stripePromise={stripePromise} filename={uploadedFilename}/>}
 
           </HeaderTextGroup>
           <ImageWrapper>

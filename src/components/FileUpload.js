@@ -129,7 +129,7 @@ const FileUpload = (props) => {
         // setUploadedFile({ fileName, filePath });
 
         setMessage('File Uploaded'); // TODO remove messages except for errors
-        props.setFileUploadComplete(true); // pass in any info here
+        props.setUploadedFilename(filename); // pass in any info here
       } catch (err) {
         console.log(err);
         if (err.response.status === 500) {
