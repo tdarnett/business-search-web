@@ -3,45 +3,32 @@ import styled from "styled-components"
 
 import { Section, Container } from "../global"
 
-const Features = () => (
-  <Section id="features">
+const HowItWorks = () => (
+  <Section id="how-it-works">
     <StyledContainer>
-      <Subtitle>Features</Subtitle>
-      <SectionTitle>Smart money management</SectionTitle>
+      <Subtitle>How it works</Subtitle>
+      <SectionTitle>Work Smarter</SectionTitle>
       <FeaturesGrid>
         <FeatureItem>
-          <FeatureTitle>Notifications</FeatureTitle>
+          <FeatureTitle>Import CSV</FeatureTitle>
           <FeatureText>
-            Receive budget and spending alerts based on your favorite triggers.
+            Upload a csv of containing:
+            <li>the business name</li>
+            <li>city of operation</li>
+            <li>rovince of operation</li>
+            for any business you wish to get expanded contact or location information for.
           </FeatureText>
         </FeatureItem>
         <FeatureItem>
-          <FeatureTitle>Security</FeatureTitle>
+          <FeatureTitle>Enter your payment information</FeatureTitle>
           <FeatureText>
-            Your data is always safe with us as we use the latest security
-            protocols.
+            Upon a successful upload, enter in your payment information to receive the list of contacts.
           </FeatureText>
         </FeatureItem>
         <FeatureItem>
-          <FeatureTitle>Automation</FeatureTitle>
+          <FeatureTitle>Check your inbox</FeatureTitle>
           <FeatureText>
-            Create smart automated workflows and triggers for your money.
-          </FeatureText>
-        </FeatureItem>
-        <FeatureItem>
-          <FeatureTitle>Aggregation</FeatureTitle>
-          <FeatureText>
-            Easily link up to 5 banks to your finance account.
-          </FeatureText>
-        </FeatureItem>
-        <FeatureItem>
-          <FeatureTitle>Payments</FeatureTitle>
-          <FeatureText>Send money to friends and family with ease.</FeatureText>
-        </FeatureItem>
-        <FeatureItem>
-          <FeatureTitle>Rewards</FeatureTitle>
-          <FeatureText>
-            High interest and rewards for hitting your goals.
+            Your receipt and resulting file will be emailed to you.
           </FeatureText>
         </FeatureItem>
       </FeaturesGrid>
@@ -49,7 +36,7 @@ const Features = () => (
   </Section>
 )
 
-export default Features
+export default HowItWorks
 
 const StyledContainer = styled(Container)``
 
