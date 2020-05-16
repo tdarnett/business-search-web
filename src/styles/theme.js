@@ -25,6 +25,7 @@ const theme = {
   color: {
     primary: "#071435",
     secondary: "#098c8c",
+    secondaryDark: "#0E7272",
     accent: "#cca86e",
     background: {
       white: "#ffffff",
@@ -37,6 +38,7 @@ const theme = {
       darker: "#eeeeee",
     },
     black: {
+      iLike: '#fce883',
       lightest: "#ABA8AF",
       light: "#564F62",
       regular: "#071435",

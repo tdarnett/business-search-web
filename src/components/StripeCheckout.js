@@ -1,289 +1,350 @@
 import React, { useState, useEffect } from 'react';
-import {
-    CardElement,
-    Elements,
-    useStripe,
-    useElements,
-} from '@stripe/react-stripe-js';
+import styled from "styled-components"
+import { CardElement, Elements, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
 import theme from '../styles/theme'
 
 const GENERATE_PAYMENT_INTENT_URL = "https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/file-status";
 const CARD_OPTIONS = {
-    iconStyle: 'solid',
-    style: {
-        base: {
-            iconColor: '#c4f0ff',
-            color: theme.color.primary,
-            fontWeight: 500,
-            fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
-            fontSize: '16px',
-            fontSmoothing: 'antialiased',
-            ':-webkit-autofill': {
-                color: '#fce883',
-            },
-            '::placeholder': {
-                color: '#87bbfd',
-            },
-        },
-        invalid: {
-            iconColor: '#ffc7ee',
-            color: '#ffc7ee',
-        },
+  iconStyle: 'solid',
+  style: {
+    base: {
+      iconColor: theme.color.black.lightest,
+      color: theme.color.black.light,
+      fontWeight: 500,
+      fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+      fontSize: '16px',
+      fontSmoothing: 'antialiased',
+      ':-webkit-autofill': {
+        color: theme.color.black.lightest,
+      },
+      '::placeholder': {
+        color: theme.color.black.lightest,
+      },
     },
+    invalid: {
+      iconColor: '#C51F1F',
+      color: '#C51F1F',
+    },
+  },
 };
+const CardError = styled.div`
+  color: #C51F1F;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  padding: 0 15px;
+  font-size: 13px;
+  margin-top: 0px;
+  transform: translateY(-15px);
+`
+
+const Form = styled.form`
+  animation: fade 200ms ease-out;
+`
+
+const SubmitButton = styled.button`
+  display: block;
+  font-size: 16px;
+  width: calc(100% - 30px);
+  height: 40px;
+  margin: 40px 15px 0;
+  background-color: ${theme.color.secondary};
+  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 #ffb9f6;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 100ms ease-in-out;
+  will-change: transform, background-color, box-shadow;
+
+  &:active {
+    background-color: ${theme.color.secondaryDark};
+    box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 #e298d8;
+    transform: scale(0.99);
+  }
+
+  &:disabled { 
+    opacity: 0.5;
+    cursor: default;
+    box-shadow: none;
+  }
+`
+
+const FormRow = styled.div`
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-left: 15px;
+  border-top: 1px solid ${theme.color.secondary};
+
+  &:first-child {
+    border-top: none;
+  }
+`
+
+const FormRowInput = styled.input`
+  font-size: 16px;
+  width: 100%;
+  padding: 11px 15px 11px 0;
+  color: ${theme.color.black.light};
+  background-color: transparent;
+  animation: 1ms void-animation-out;
+  border: 0
+  &:-webkit-autofill {
+    -webkit-text-fill-color: ${theme.color.black.lightest};
+    transition: background-color 100000000s;
+    animation: 1ms void-animation-out;
+  }
+
+  &::placeholder {
+    color: ${theme.color.black.lightest}
+  }
+
+  &:focus {
+    outline: none
+  }
+`
+
+const FormRowLabel = styled.label`
+  width: 15%;
+  min-width: 70px;
+  padding: 11px 0;
+  color: ${theme.color.black.light};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
+const FormGroup = styled.fieldset`
+  margin: 0 15px 20px;
+  padding: 0;
+  border-style: none;
+  background-color: ${theme.color.white.dark};
+  will-change: opacity, transform;
+  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 ${theme.color.white.darker};
+  border-radius: 4px;
+`
+// TODO fix spinner
+const Spinner = styled.div`
+  color: #ffffff;
+  font-size: 22px;
+  text-indent: -99999px;
+  margin: 0px auto;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  box-shadow: inset 0 0 0 2px;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+
+  &:before {
+    width: 10.4px;
+    height: 20.4px;
+    background: #5469d4;
+    border-radius: 20.4px 0 0 20.4px;
+    top: -0.2px;
+    left: -0.2px;
+    -webkit-transform-origin: 10.4px 10.2px;
+    transform-origin: 10.4px 10.2px;
+    -webkit-animation: loading 2s infinite ease 1.5s;
+    animation: loading 2s infinite ease 1.5s;
+    position: absolute;
+    content: "";
+  }
+
+  &.after {
+    width: 10.4px;
+    height: 10.2px;
+    background: #5469d4;
+    border-radius: 0 10.2px 10.2px 0;
+    top: -0.1px;
+    left: 10.2px;
+    -webkit-transform-origin: 0px 10.2px;
+    transform-origin: 0px 10.2px;
+    -webkit-animation: loading 2s infinite ease;
+    animation: loading 2s infinite ease;
+    position: absolute;
+    content: "";
+  }
+`
+
+const StyledCardElement = styled(CardElement)`
+  width: 100%;
+  padding: 11px 15px 11px 0;
+`
 
 const CardField = ({ onChange }) => (
-    <div className="FormRow">
-        <CardElement id="card-element" options={CARD_OPTIONS} onChange={onChange} />
-    </div>
+  <FormRow>
+    <StyledCardElement options={CARD_OPTIONS} onChange={onChange} />
+  </FormRow>
 );
 
 const Field = ({
-    label,
-    id,
-    type,
-    placeholder,
-    required,
-    autoComplete,
-    value,
-    onChange,
+  label,
+  id,
+  type,
+  placeholder,
+  required,
+  autoComplete,
+  value,
+  onChange,
 }) => (
-        <div className="FormRow">
-            <label htmlFor={id} className="FormRowLabel">
-                {label}
-            </label>
-            <input
-                className="FormRowInput"
-                id={id}
-                type={type}
-                placeholder={placeholder}
-                required={required}
-                autoComplete={autoComplete}
-                value={value}
-                onChange={onChange}
-            />
-        </div>
-    );
-
-const SubmitButton = ({ processing, error, children, disabled }) => (
-    <button
-        className={`SubmitButton ${error ? 'SubmitButton--error' : ''}`}
-        type="submit"
-        disabled={processing || disabled}
-    >
-        {processing ? 'Processing...' : children}
-    </button>
-);
-
-const ErrorMessage = ({ children }) => (
-    <div className="ErrorMessage" role="alert">
-        <svg width="16" height="16" viewBox="0 0 17 17">
-            <path
-                fill="#FFF"
-                d="M8.5,17 C3.80557963,17 0,13.1944204 0,8.5 C0,3.80557963 3.80557963,0 8.5,0 C13.1944204,0 17,3.80557963 17,8.5 C17,13.1944204 13.1944204,17 8.5,17 Z"
-            />
-            <path
-                fill="#6772e5"
-                d="M8.5,7.29791847 L6.12604076,4.92395924 C5.79409512,4.59201359 5.25590488,4.59201359 4.92395924,4.92395924 C4.59201359,5.25590488 4.59201359,5.79409512 4.92395924,6.12604076 L7.29791847,8.5 L4.92395924,10.8739592 C4.59201359,11.2059049 4.59201359,11.7440951 4.92395924,12.0760408 C5.25590488,12.4079864 5.79409512,12.4079864 6.12604076,12.0760408 L8.5,9.70208153 L10.8739592,12.0760408 C11.2059049,12.4079864 11.7440951,12.4079864 12.0760408,12.0760408 C12.4079864,11.7440951 12.4079864,11.2059049 12.0760408,10.8739592 L9.70208153,8.5 L12.0760408,6.12604076 C12.4079864,5.79409512 12.4079864,5.25590488 12.0760408,4.92395924 C11.7440951,4.59201359 11.2059049,4.59201359 10.8739592,4.92395924 L8.5,7.29791847 L8.5,7.29791847 Z"
-            />
-        </svg>
-        {children}
-    </div>
-);
-
-const ResetButton = ({ onClick }) => (
-    <button type="button" className="ResetButton" onClick={onClick}>
-        <svg width="32px" height="32px" viewBox="0 0 32 32">
-            <path
-                fill="#FFF"
-                d="M15,7.05492878 C10.5000495,7.55237307 7,11.3674463 7,16 C7,20.9705627 11.0294373,25 16,25 C20.9705627,25 25,20.9705627 25,16 C25,15.3627484 24.4834055,14.8461538 23.8461538,14.8461538 C23.2089022,14.8461538 22.6923077,15.3627484 22.6923077,16 C22.6923077,19.6960595 19.6960595,22.6923077 16,22.6923077 C12.3039405,22.6923077 9.30769231,19.6960595 9.30769231,16 C9.30769231,12.3039405 12.3039405,9.30769231 16,9.30769231 L16,12.0841673 C16,12.1800431 16.0275652,12.2738974 16.0794108,12.354546 C16.2287368,12.5868311 16.5380938,12.6540826 16.7703788,12.5047565 L22.3457501,8.92058924 L22.3457501,8.92058924 C22.4060014,8.88185624 22.4572275,8.83063012 22.4959605,8.7703788 C22.6452866,8.53809377 22.5780351,8.22873685 22.3457501,8.07941076 L22.3457501,8.07941076 L16.7703788,4.49524351 C16.6897301,4.44339794 16.5958758,4.41583275 16.5,4.41583275 C16.2238576,4.41583275 16,4.63969037 16,4.91583275 L16,7 L15,7 L15,7.05492878 Z M16,32 C7.163444,32 0,24.836556 0,16 C0,7.163444 7.163444,0 16,0 C24.836556,0 32,7.163444 32,16 C32,24.836556 24.836556,32 16,32 Z"
-            />
-        </svg>
-    </button>
-);
+    <FormRow>
+      <FormRowLabel htmlFor={id}>
+        {label}
+      </FormRowLabel>
+      <FormRowInput
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        required={required}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={onChange}
+      />
+    </FormRow>
+  );
 
 const CheckoutForm = (props) => {
-    const stripe = useStripe();
-    const elements = useElements();
-    const [succeeded, setSucceeded] = useState(false);
-    const [error, setError] = useState(null);
-    const [clientSecret, setClientSecret] = useState('');
-    const [disabled, setDisabled] = useState(true);
-    const [processing, setProcessing] = useState(false);
-    const [billingDetails, setBillingDetails] = useState({
-        email: '',
-        name: '',
+  const stripe = useStripe();
+  const elements = useElements();
+  const [succeeded, setSucceeded] = useState(false);
+  const [error, setError] = useState(null);
+  const [clientSecret, setClientSecret] = useState('');
+  const [disabled, setDisabled] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [amount, setAmount] = useState(0);
+  const [billingDetails, setBillingDetails] = useState({
+    email: '',
+    name: '',
+  });
+
+  const handleSubmit = async (event) => {
+    // We don't want to let default form submission happen here,
+    // which would refresh the page.
+    event.preventDefault();
+    setProcessing(true);
+
+    if (!stripe || !elements) {
+      // Stripe.js has not yet loaded.
+      // Make sure to disable form submission until Stripe.js has loaded.
+      return;
+    }
+
+    const payload = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: billingDetails
+      }
     });
+    if (payload.error) {
+      setError(`Payment failed ${payload.error.message}`);
+      setProcessing(false);
+    } else {
+      setError(null);
+      setProcessing(false);
+      setSucceeded(true);
+    }
+  };
 
-    const handleSubmit = async (event) => {
-        // We don't want to let default form submission happen here,
-        // which would refresh the page.
-        event.preventDefault();
-        setProcessing(true);
-
-        if (!stripe || !elements) {
-            // Stripe.js has not yet loaded.
-            // Make sure to disable form submission until Stripe.js has loaded.
-            return;
-        }
-
-        const payload = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: elements.getElement(CardElement),
-                billing_details: billingDetails
-            }
+  useEffect(() => {
+    // Check to see if the file is completed and get payment intent
+    async function fetchPaymentIntent() {
+      try {
+        const res = await axios.get(GENERATE_PAYMENT_INTENT_URL, {
+          params: {
+            key: props.filename
+          }
         });
-        if (payload.error) {
-            setError(`Payment failed ${payload.error.message}`);
-            setProcessing(false);
+        console.log(res)
+        setAmount(res.data.amount / 100)
+        setClientSecret(res.data.client_secret)
+      } catch (err) {
+        console.log(err);
+        if (err.response.status === 500) {
+          console.log('There was a problem with the server'); // TODO better error response
         } else {
-            setError(null);
-            setProcessing(false);
-            setSucceeded(true);
+          console.log(err.response.data.msg);
         }
-    };
+      }
+    }
+    fetchPaymentIntent();
+  }, []);
 
-    useEffect(() => {
-        // Check to see if the file is completed and get payment intent
-        async function fetchPaymentIntent() {
-            try {
-                const res = await axios.get(GENERATE_PAYMENT_INTENT_URL, {
-                    params: {
-                        key: props.filename
-                    }
-                });
-                console.log(res)
-                setClientSecret(res.data.client_secret)
-            } catch (err) {
-                console.log(err);
-                if (err.response.status === 500) {
-                    console.log('There was a problem with the server'); // TODO better error response
-                } else {
-                    console.log(err.response.data.msg);
-                }
-            }
-        }
-        fetchPaymentIntent();
-    }, []);
+  const handleChange = async (event) => {
+    // Listen for changes in the CardElement
+    // and display any errors as the customer types their card details
+    setDisabled(event.empty);
+    console.log(event.error && event.error.message);
+    setError(event.error ? event.error.message : "");
+  };
 
-    const handleChange = async (event) => {
-        // Listen for changes in the CardElement
-        // and display any errors as the customer types their card details
-        setDisabled(event.empty);
-        setError(event.error ? event.error.message : "");
-    };
+  return (
+    <Form onSubmit={handleSubmit}>
+      <FormGroup>
+        <Field
+          label="Name"
+          id="name"
+          type="text"
+          placeholder="Jane Doe"
+          required
+          autoComplete="name"
+          value={billingDetails.name}
+          onChange={(e) => {
+            setBillingDetails({ ...billingDetails, name: e.target.value });
+          }}
+        />
+        <Field
+          label="Email"
+          id="email"
+          type="email"
+          placeholder="janedoe@gmail.com"
+          required
+          autoComplete="email"
+          value={billingDetails.email}
+          onChange={(e) => {
+            setBillingDetails({ ...billingDetails, email: e.target.value });
+          }}
+        />
+        <CardField onChange={handleChange} />
+      </FormGroup>
 
-    const reset = () => {
-        setError(null);
-        setProcessing(false);
-        // setPaymentMethod(null);
-        setBillingDetails({
-            email: '',
-            name: '',
-        });
-    };
+      {error && <CardError role="alert">{error}</CardError>}
 
-    const cardStyle = {
-        style: {
-            base: {
-                color: "#32325d",
-                fontFamily: 'Roboto, sans-serif',
-                fontSmoothing: "antialiased",
-                fontSize: "16px",
-                "::placeholder": {
-                    color: "#32325d"
-                }
-            },
-            invalid: {
-                color: "#fa755a",
-                iconColor: "#fa755a"
-            }
-        }
-    };
-
-    return (
-        <form id="payment-form" onSubmit={handleSubmit}>
-            <fieldset className="FormGroup">
-                <Field
-                    label="Name"
-                    id="name"
-                    type="text"
-                    placeholder="Jane Doe"
-                    required
-                    autoComplete="name"
-                    value={billingDetails.name}
-                    onChange={(e) => {
-                        setBillingDetails({ ...billingDetails, name: e.target.value });
-                    }}
-                />
-                <Field
-                    label="Email"
-                    id="email"
-                    type="email"
-                    placeholder="janedoe@gmail.com"
-                    required
-                    autoComplete="email"
-                    value={billingDetails.email}
-                    onChange={(e) => {
-                        setBillingDetails({ ...billingDetails, email: e.target.value });
-                    }}
-                />
-            </fieldset>
-            <fieldset className="FormGroup">
-                {/* <CardField
-                    onChange={(e) => {
-                        setError(e.error);
-                        // setCardComplete(e.complete);
-                    }}
-                /> */}
-            </fieldset>
-
-            {/* CardElement */}
-            <CardField onChange={handleChange} />
-            <button
-                disabled={processing || disabled || succeeded}
-                id="submit"
-            >
-                <span id="button-text">
-                    {processing ? (
-                        <div className="spinner" id="spinner"></div>
-                    ) : (
-                            "Pay"
-                        )}
-                </span>
-            </button>
-            {/* Show any error that happens when processing the payment */}
-            {error && (
-                <div className="card-error" role="alert">
-                    {error}
-                </div>
+      <SubmitButton disabled={processing || disabled || succeeded}>
+        <span id="button-text">
+          {processing ? (
+            <Spinner />
+          ) : (
+              `Pay ${amount.toLocaleString('en', {
+                style: 'currency',
+                currency: 'CAD',
+                currencyDisplay: 'symbol',
+                maximumFractionDigits: 2,
+              })}`
             )}
-            {/* Show a success message upon completion */}
-            <p className={succeeded ? "result-message" : "result-message hidden"}>
-                Payment succeeded, see the result in your
-        <a
-                    href={`https://dashboard.stripe.com/test/payments`}
-                >
-                    {" "}
-          Stripe dashboard.
-        </a> Refresh the page to pay again.
-      </p>
-        </form>
-    );
+        </span>
+      </SubmitButton>
+
+      {/* Show a success message upon completion TODO make this more visible */}
+      {succeeded && (<p>Payment succeeded, please check your inbox!</p>)}
+    </Form>
+  );
 };
 
 
-
 const StripeCheckout = (props) => {
-    return (
-        <Elements stripe={props.stripePromise}>
-            <CheckoutForm filename={props.filename} />
-            <div>
-                {props.filename}
-            </div>
-        </Elements>
-    )
+  return (
+    <Elements stripe={props.stripePromise}>
+      <CheckoutForm filename={props.filename} />
+    </Elements>
+  )
 }
 
 export default StripeCheckout;
