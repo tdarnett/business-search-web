@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import styled from "styled-components"
+import styled from 'styled-components';
 import { CardElement, Elements, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
-import theme from '../styles/theme'
+import theme from '../styles/theme';
 
-const GENERATE_PAYMENT_INTENT_URL = "https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/file-status";
+const GENERATE_PAYMENT_INTENT_URL = 'https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/file-status';
 const CARD_OPTIONS = {
   iconStyle: 'solid',
   style: {
@@ -29,7 +29,7 @@ const CARD_OPTIONS = {
   },
 };
 const CardError = styled.div`
-  color: #C51F1F;
+  color: #c51f1f;
   position: absolute;
   display: flex;
   justify-content: center;
@@ -37,11 +37,11 @@ const CardError = styled.div`
   font-size: 13px;
   margin-top: 0px;
   transform: translateY(-15px);
-`
+`;
 
 const Form = styled.form`
   animation: fade 200ms ease-out;
-`
+`;
 
 const SubmitButton = styled.button`
   display: block;
@@ -50,8 +50,7 @@ const SubmitButton = styled.button`
   height: 40px;
   margin: 40px 15px 0;
   background-color: ${theme.color.secondary};
-  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 #ffb9f6;
+  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffb9f6;
   border-radius: 4px;
   color: #fff;
   font-weight: 600;
@@ -61,17 +60,16 @@ const SubmitButton = styled.button`
 
   &:active {
     background-color: ${theme.color.secondaryDark};
-    box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 #e298d8;
+    box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08), inset 0 1px 0 #e298d8;
     transform: scale(0.99);
   }
 
-  &:disabled { 
+  &:disabled {
     opacity: 0.5;
     cursor: default;
     box-shadow: none;
   }
-`
+`;
 
 const FormRow = styled.div`
   display: -ms-flexbox;
@@ -79,12 +77,13 @@ const FormRow = styled.div`
   -ms-flex-align: center;
   align-items: center;
   margin-left: 15px;
+  margin-right: 15px;
   border-top: 1px solid ${theme.color.secondary};
 
   &:first-child {
     border-top: none;
   }
-`
+`;
 
 const FormRowInput = styled.input`
   font-size: 16px;
@@ -93,7 +92,8 @@ const FormRowInput = styled.input`
   color: ${theme.color.black.light};
   background-color: transparent;
   animation: 1ms void-animation-out;
-  border: 0
+  border: none;
+  border-style: none;
   &:-webkit-autofill {
     -webkit-text-fill-color: ${theme.color.black.lightest};
     transition: background-color 100000000s;
@@ -101,13 +101,13 @@ const FormRowInput = styled.input`
   }
 
   &::placeholder {
-    color: ${theme.color.black.lightest}
+    color: ${theme.color.black.lightest};
   }
 
   &:focus {
-    outline: none
+    outline: none;
   }
-`
+`;
 
 const FormRowLabel = styled.label`
   width: 15%;
@@ -117,7 +117,7 @@ const FormRowLabel = styled.label`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-`
+`;
 
 const FormGroup = styled.fieldset`
   margin: 0 15px 20px;
@@ -125,10 +125,9 @@ const FormGroup = styled.fieldset`
   border-style: none;
   background-color: ${theme.color.white.dark};
   will-change: opacity, transform;
-  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 ${theme.color.white.darker};
+  box-shadow: 0 6px 9px rgba(50, 50, 93, 0.06), 0 2px 5px rgba(0, 0, 0, 0.08), inset 0 1px 0 ${theme.color.white.darker};
   border-radius: 4px;
-`
+`;
 // TODO fix spinner
 const Spinner = styled.div`
   color: #ffffff;
@@ -155,7 +154,7 @@ const Spinner = styled.div`
     -webkit-animation: loading 2s infinite ease 1.5s;
     animation: loading 2s infinite ease 1.5s;
     position: absolute;
-    content: "";
+    content: '';
   }
 
   &.after {
@@ -170,14 +169,14 @@ const Spinner = styled.div`
     -webkit-animation: loading 2s infinite ease;
     animation: loading 2s infinite ease;
     position: absolute;
-    content: "";
+    content: '';
   }
-`
+`;
 
 const StyledCardElement = styled(CardElement)`
   width: 100%;
   padding: 11px 15px 11px 0;
-`
+`;
 
 const CardField = ({ onChange }) => (
   <FormRow>
@@ -185,31 +184,20 @@ const CardField = ({ onChange }) => (
   </FormRow>
 );
 
-const Field = ({
-  label,
-  id,
-  type,
-  placeholder,
-  required,
-  autoComplete,
-  value,
-  onChange,
-}) => (
-    <FormRow>
-      <FormRowLabel htmlFor={id}>
-        {label}
-      </FormRowLabel>
-      <FormRowInput
-        id={id}
-        type={type}
-        placeholder={placeholder}
-        required={required}
-        autoComplete={autoComplete}
-        value={value}
-        onChange={onChange}
-      />
-    </FormRow>
-  );
+const Field = ({ label, id, type, placeholder, required, autoComplete, value, onChange }) => (
+  <FormRow>
+    <FormRowLabel htmlFor={id}>{label}</FormRowLabel>
+    <FormRowInput
+      id={id}
+      type={type}
+      placeholder={placeholder}
+      required={required}
+      autoComplete={autoComplete}
+      value={value}
+      onChange={onChange}
+    />
+  </FormRow>
+);
 
 const CheckoutForm = (props) => {
   const stripe = useStripe();
@@ -240,8 +228,8 @@ const CheckoutForm = (props) => {
     const payload = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement),
-        billing_details: billingDetails
-      }
+        billing_details: billingDetails,
+      },
     });
     if (payload.error) {
       setError(`Payment failed ${payload.error.message}`);
@@ -259,14 +247,12 @@ const CheckoutForm = (props) => {
       try {
         const res = await axios.get(GENERATE_PAYMENT_INTENT_URL, {
           params: {
-            key: props.filename
-          }
+            key: props.filename,
+          },
         });
-        console.log(res)
-        setAmount(res.data.amount / 100)
-        setClientSecret(res.data.client_secret)
+        setAmount(res.data.amount / 100);
+        setClientSecret(res.data.client_secret);
       } catch (err) {
-        console.log(err);
         if (err.response.status === 500) {
           console.log('There was a problem with the server'); // TODO better error response
         } else {
@@ -281,8 +267,7 @@ const CheckoutForm = (props) => {
     // Listen for changes in the CardElement
     // and display any errors as the customer types their card details
     setDisabled(event.empty);
-    console.log(event.error && event.error.message);
-    setError(event.error ? event.error.message : "");
+    setError(event.error ? event.error.message : '');
   };
 
   return (
@@ -322,29 +307,28 @@ const CheckoutForm = (props) => {
           {processing ? (
             <Spinner />
           ) : (
-              `Pay ${amount.toLocaleString('en', {
-                style: 'currency',
-                currency: 'CAD',
-                currencyDisplay: 'symbol',
-                maximumFractionDigits: 2,
-              })}`
-            )}
+            `Pay ${amount.toLocaleString('en', {
+              style: 'currency',
+              currency: 'CAD',
+              currencyDisplay: 'symbol',
+              maximumFractionDigits: 2,
+            })}`
+          )}
         </span>
       </SubmitButton>
 
       {/* Show a success message upon completion TODO make this more visible */}
-      {succeeded && (<p>Payment succeeded, please check your inbox!</p>)}
+      {succeeded && <p>Payment succeeded, please check your inbox!</p>}
     </Form>
   );
 };
-
 
 const StripeCheckout = (props) => {
   return (
     <Elements stripe={props.stripePromise}>
       <CheckoutForm filename={props.filename} />
     </Elements>
-  )
-}
+  );
+};
 
 export default StripeCheckout;

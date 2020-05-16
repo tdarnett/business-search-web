@@ -1,97 +1,81 @@
-import React, { Component } from "react"
-import AnchorLink from "react-anchor-link-smooth-scroll"
-import Scrollspy from "react-scrollspy"
-import { Menu, X } from "react-feather"
-import { toKebabCase } from "../../../utils"
+import React, { Component } from 'react';
+import AnchorLink from 'react-anchor-link-smooth-scroll';
+import Scrollspy from 'react-scrollspy';
+import { Menu, X } from 'react-feather';
+import { toKebabCase } from '../../../utils';
 
-import { Container } from "../../global"
-import {
-  Nav,
-  NavItem,
-  Brand,
-  StyledContainer,
-  NavListWrapper,
-  MobileMenu,
-  Mobile,
-  ActionsContainer,
-} from "./style"
+import { Container } from '../../global';
+import { Nav, NavItem, Brand, StyledContainer, NavListWrapper, MobileMenu, Mobile, ActionsContainer } from './style';
 
-const NAV_ITEMS = ["How it works"]
+const NAV_ITEMS = ['How it works'];
 
 export default class Navigation extends Component {
   state = {
     mobileMenuOpen: false,
     hasScrolled: false,
-  }
+  };
 
   componentDidMount() {
-    window.addEventListener("scroll", this.handleScroll)
+    window.addEventListener('scroll', this.handleScroll);
   }
 
-  handleScroll = event => {
-    const scrollTop = window.pageYOffset
+  handleScroll = (event) => {
+    const scrollTop = window.pageYOffset;
 
     if (scrollTop > 32) {
-      this.setState({ hasScrolled: true })
+      this.setState({ hasScrolled: true });
     } else {
-      this.setState({ hasScrolled: false })
+      this.setState({ hasScrolled: false });
     }
-  }
+  };
 
   toggleMobileMenu = () => {
-    this.setState(prevState => ({ mobileMenuOpen: !prevState.mobileMenuOpen }))
-  }
+    this.setState((prevState) => ({ mobileMenuOpen: !prevState.mobileMenuOpen }));
+  };
 
   closeMobileMenu = () => {
     if (this.state.mobileMenuOpen) {
-      this.setState({ mobileMenuOpen: false })
+      this.setState({ mobileMenuOpen: false });
     }
-  }
+  };
 
-  getNavAnchorLink = item => (
+  getNavAnchorLink = (item) => (
     <AnchorLink href={`#${toKebabCase(item)}`} onClick={this.closeMobileMenu}>
       {item}
     </AnchorLink>
-  )
+  );
 
   getNavList = ({ mobile = false }) => (
     <NavListWrapper mobile={mobile}>
       <Scrollspy
-        items={NAV_ITEMS.map(item => item.toLowerCase())}
+        items={NAV_ITEMS.map((item) => item.toLowerCase())}
         currentClassName="active"
         mobile={mobile}
         offset={-64}
       >
-        {NAV_ITEMS.map(navItem => (
+        {NAV_ITEMS.map((navItem) => (
           <NavItem key={navItem}>{this.getNavAnchorLink(navItem)}</NavItem>
         ))}
       </Scrollspy>
     </NavListWrapper>
-  )
+  );
 
   render() {
-    const { mobileMenuOpen } = this.state
+    const { mobileMenuOpen } = this.state;
 
     return (
       <Nav {...this.props} scrolled={this.state.hasScrolled}>
         <StyledContainer>
           <Brand>
-            <Scrollspy offset={-64} item={["top"]} currentClassName="active">
+            <Scrollspy offset={-64} item={['top']} currentClassName="active">
               <AnchorLink href="#top" onClick={this.closeMobileMenu}>
                 Business Search
               </AnchorLink>
             </Scrollspy>
           </Brand>
           <Mobile>
-            <button
-              onClick={this.toggleMobileMenu}
-              style={{ color: "black", background: "none" }}
-            >
-              {this.state.mobileMenuOpen ? (
-                <X size={24} alt="close menu" />
-              ) : (
-                  <Menu size={24} alt="open menu" />
-                )}
+            <button onClick={this.toggleMobileMenu} style={{ color: 'black', background: 'none' }}>
+              {this.state.mobileMenuOpen ? <X size={24} alt="close menu" /> : <Menu size={24} alt="open menu" />}
             </button>
           </Mobile>
 
@@ -105,6 +89,6 @@ export default class Navigation extends Component {
           )}
         </Mobile>
       </Nav>
-    )
+    );
   }
 }
