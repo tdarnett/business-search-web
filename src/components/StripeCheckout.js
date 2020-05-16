@@ -240,7 +240,7 @@ const CheckoutForm = (props) => {
             </fieldset>
 
             {/* CardElement */}
-            <CardField onChange={handleChange}/>
+            <CardField onChange={handleChange} />
             <button
                 disabled={processing || disabled || succeeded}
                 id="submit"
