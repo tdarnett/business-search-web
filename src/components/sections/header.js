@@ -8,7 +8,7 @@ import { Container } from "../global"
 import FileUpload from "../FileUpload"
 import StripeCheckout from "../StripeCheckout"
 
-const stripePromise = loadStripe('pk_test_6pRNASCoBOKtIshFeQd4XMUh');
+const stripePromise = loadStripe('pk_test_qOdhx6FZqIhHz5w4pDumRrA5');
 
 const Header = () => {
   const data = useStaticQuery(graphql`

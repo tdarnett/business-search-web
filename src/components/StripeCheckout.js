@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     CardElement,
     Elements,
     useStripe,
     useElements,
 } from '@stripe/react-stripe-js';
+import axios from 'axios';
+import theme from '../styles/theme'
 
+const GENERATE_PAYMENT_INTENT_URL = "https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/file-status";
 const CARD_OPTIONS = {
     iconStyle: 'solid',
     style: {
         base: {
             iconColor: '#c4f0ff',
-            color: '#fff',
+            color: theme.color.primary,
             fontWeight: 500,
             fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
             fontSize: '16px',
@@ -32,7 +35,7 @@ const CARD_OPTIONS = {
 
 const CardField = ({ onChange }) => (
     <div className="FormRow">
-        <CardElement options={CARD_OPTIONS} onChange={onChange} />
+        <CardElement id="card-element" options={CARD_OPTIONS} onChange={onChange} />
     </div>
 );
 
@@ -100,13 +103,14 @@ const ResetButton = ({ onClick }) => (
     </button>
 );
 
-const CheckoutForm = () => {
+const CheckoutForm = (props) => {
     const stripe = useStripe();
     const elements = useElements();
+    const [succeeded, setSucceeded] = useState(false);
     const [error, setError] = useState(null);
-    const [cardComplete, setCardComplete] = useState(false);
+    const [clientSecret, setClientSecret] = useState('');
+    const [disabled, setDisabled] = useState(true);
     const [processing, setProcessing] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState(null);
     const [billingDetails, setBillingDetails] = useState({
         email: '',
         name: '',
@@ -116,6 +120,7 @@ const CheckoutForm = () => {
         // We don't want to let default form submission happen here,
         // which would refresh the page.
         event.preventDefault();
+        setProcessing(true);
 
         if (!stripe || !elements) {
             // Stripe.js has not yet loaded.
@@ -123,106 +128,157 @@ const CheckoutForm = () => {
             return;
         }
 
-        const result = await stripe.confirmCardPayment('{CLIENT_SECRET}', {
+        const payload = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
                 card: elements.getElement(CardElement),
                 billing_details: billingDetails
             }
         });
-
-        if (result.error) {
-            // Show error to your customer (e.g., insufficient funds)
-            console.log(result.error.message);
+        if (payload.error) {
+            setError(`Payment failed ${payload.error.message}`);
+            setProcessing(false);
         } else {
-            // The payment has been processed!
-            if (result.paymentIntent.status === 'succeeded') {
-                // Show a success message to your customer
-                // There's a risk of the customer closing the window before callback
-                // execution. Set up a webhook or plugin to listen for the
-                // payment_intent.succeeded event that handles any business critical
-                // post-payment actions.
+            setError(null);
+            setProcessing(false);
+            setSucceeded(true);
+        }
+    };
+
+    useEffect(() => {
+        // Check to see if the file is completed and get payment intent
+        async function fetchPaymentIntent() {
+            try {
+                const res = await axios.get(GENERATE_PAYMENT_INTENT_URL, {
+                    params: {
+                        key: props.filename
+                    }
+                });
+                console.log(res)
+                setClientSecret(res.data.client_secret)
+            } catch (err) {
+                console.log(err);
+                if (err.response.status === 500) {
+                    console.log('There was a problem with the server'); // TODO better error response
+                } else {
+                    console.log(err.response.data.msg);
+                }
             }
         }
+        fetchPaymentIntent();
+    }, []);
+
+    const handleChange = async (event) => {
+        // Listen for changes in the CardElement
+        // and display any errors as the customer types their card details
+        setDisabled(event.empty);
+        setError(event.error ? event.error.message : "");
     };
 
     const reset = () => {
         setError(null);
         setProcessing(false);
-        setPaymentMethod(null);
+        // setPaymentMethod(null);
         setBillingDetails({
             email: '',
             name: '',
         });
     };
 
-    return paymentMethod ? (
-        <div className="Result">
-            <div className="ResultTitle" role="alert">
-                Payment successful
-        </div>
-            <div className="ResultMessage">
-                Thanks for trying Stripe Elements. No money was charged, but we
-          generated a PaymentMethod: {paymentMethod.id}
-            </div>
-            <ResetButton onClick={reset} />
-        </div>
-    ) : (
-            <form className="Form" onSubmit={handleSubmit}>
-                <fieldset className="FormGroup">
-                    <Field
-                        label="Name"
-                        id="name"
-                        type="text"
-                        placeholder="Jane Doe"
-                        required
-                        autoComplete="name"
-                        value={billingDetails.name}
-                        onChange={(e) => {
-                            setBillingDetails({ ...billingDetails, name: e.target.value });
-                        }}
-                    />
-                    <Field
-                        label="Email"
-                        id="email"
-                        type="email"
-                        placeholder="janedoe@gmail.com"
-                        required
-                        autoComplete="email"
-                        value={billingDetails.email}
-                        onChange={(e) => {
-                            setBillingDetails({ ...billingDetails, email: e.target.value });
-                        }}
-                    />
-                </fieldset>
-                <fieldset className="FormGroup">
-                    <CardField
-                        onChange={(e) => {
-                            setError(e.error);
-                            setCardComplete(e.complete);
-                        }}
-                    />
-                </fieldset>
-                {error && <ErrorMessage>{error.message}</ErrorMessage>}
-                <SubmitButton processing={processing} error={error} disabled={!stripe}>
-                    Pay $25
-        </SubmitButton>
-            </form>
-        );
+    const cardStyle = {
+        style: {
+            base: {
+                color: "#32325d",
+                fontFamily: 'Roboto, sans-serif',
+                fontSmoothing: "antialiased",
+                fontSize: "16px",
+                "::placeholder": {
+                    color: "#32325d"
+                }
+            },
+            invalid: {
+                color: "#fa755a",
+                iconColor: "#fa755a"
+            }
+        }
+    };
+
+    return (
+        <form id="payment-form" onSubmit={handleSubmit}>
+            <fieldset className="FormGroup">
+                <Field
+                    label="Name"
+                    id="name"
+                    type="text"
+                    placeholder="Jane Doe"
+                    required
+                    autoComplete="name"
+                    value={billingDetails.name}
+                    onChange={(e) => {
+                        setBillingDetails({ ...billingDetails, name: e.target.value });
+                    }}
+                />
+                <Field
+                    label="Email"
+                    id="email"
+                    type="email"
+                    placeholder="janedoe@gmail.com"
+                    required
+                    autoComplete="email"
+                    value={billingDetails.email}
+                    onChange={(e) => {
+                        setBillingDetails({ ...billingDetails, email: e.target.value });
+                    }}
+                />
+            </fieldset>
+            <fieldset className="FormGroup">
+                {/* <CardField
+                    onChange={(e) => {
+                        setError(e.error);
+                        // setCardComplete(e.complete);
+                    }}
+                /> */}
+            </fieldset>
+
+            {/* CardElement */}
+            <CardField onChange={handleChange}/>
+            <button
+                disabled={processing || disabled || succeeded}
+                id="submit"
+            >
+                <span id="button-text">
+                    {processing ? (
+                        <div className="spinner" id="spinner"></div>
+                    ) : (
+                            "Pay"
+                        )}
+                </span>
+            </button>
+            {/* Show any error that happens when processing the payment */}
+            {error && (
+                <div className="card-error" role="alert">
+                    {error}
+                </div>
+            )}
+            {/* Show a success message upon completion */}
+            <p className={succeeded ? "result-message" : "result-message hidden"}>
+                Payment succeeded, see the result in your
+        <a
+                    href={`https://dashboard.stripe.com/test/payments`}
+                >
+                    {" "}
+          Stripe dashboard.
+        </a> Refresh the page to pay again.
+      </p>
+        </form>
+    );
 };
 
-const ELEMENTS_OPTIONS = {
-    fonts: [
-        {
-            cssSrc: 'https://fonts.googleapis.com/css?family=Poppins',
-        },
-    ],
-};
 
 
 const StripeCheckout = (props) => {
     return (
-        <Elements stripe={props.stripePromise} options={ELEMENTS_OPTIONS}>
-            <CheckoutForm />
+        <Elements stripe={props.stripePromise}>
+            <CheckoutForm filename={props.filename} />
             <div>
                 {props.filename}
             </div>
