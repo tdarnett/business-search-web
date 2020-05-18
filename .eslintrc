@@ -6,7 +6,7 @@
   "parser": "babel-eslint",
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 2018,
+    "ecmaVersion": 2020,
     "spread": true,
     "allowImportExportEverywhere": true
   },
@@ -25,6 +25,7 @@
     "quotes": ["error", "single", { "avoidEscape": true }],
     "semi": ["error", "always"],
     "no-console": 2,
-    "react/prop-types": 0
+    "react/prop-types": 0,
+    "no-import-assign": 0
   }
 }

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Message from './Message';
 import Progress from './Progress';
 import axios from 'axios';
 
-const HeaderForm = styled.form`
+const InputDiv = styled.div`
   display: flex;
   flex-direction: row;
   padding-bottom: 16px;
@@ -15,6 +15,10 @@ const HeaderForm = styled.form`
 `;
 
 const HeaderInput = styled.input`
+  display: none;
+`;
+
+const HeaderInputButton = styled.button`
   content: none;
   font-weight: 500;
   font-size: 16px;
@@ -76,12 +80,17 @@ const FormSubtitle = styled.span`
 `;
 
 const FileUpload = (props) => {
+  const inputFileRef = useRef(null);
   const [file, setFile] = useState('');
   const [filename, setFilename] = useState('Choose File');
 
   const [message, setMessage] = useState('');
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const URLEndpoint = 'https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/action/pre-signed-url';
+
+  const onFileSelect = () => {
+    inputFileRef.current.click();
+  };
 
   const onChange = (e) => {
     setFile(e.target.files[0]);
@@ -107,27 +116,18 @@ const FileUpload = (props) => {
       formData.append('file', file);
 
       try {
-        // await axios.post(uploadURL, formData, {
-        //     headers: {
-        //         'Content-Type': 'multipart/form-data'
-        //     },
-        //     onUploadProgress: progressEvent => {
-        //         setUploadPercentage(
-        //             parseInt(
-        //                 Math.round((progressEvent.loaded * 100) / progressEvent.total)
-        //             )
-        //         );
+        await axios.post(uploadURL, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            setUploadPercentage(parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total)));
 
-        //         // Clear percentage
-        //         setTimeout(() => setUploadPercentage(0), 10000);
-        //     }
-        // });
+            // Clear percentage
+            setTimeout(() => setUploadPercentage(0), 10000);
+          },
+        });
 
-        //   const { filename, filePath } = res.data;
-
-        // setUploadedFile({ fileName, filePath });
-
-        setMessage('File Uploaded'); // TODO remove messages except for errors
         props.setUploadedFilename(filename); // pass in any info here
       } catch (err) {
         console.log(err);
@@ -145,16 +145,18 @@ const FileUpload = (props) => {
   return (
     <div>
       {message ? <Message msg={message} /> : null}
-      <HeaderForm onSubmit={onSubmit}>
-        <HeaderInput
-          type="file"
-          // hidden
-          onChange={onChange}
-        />
-        <HeaderButton type="submit">Upload</HeaderButton>
-      </HeaderForm>
-      <FormSubtitle>*$0.10 CAD per valid contact</FormSubtitle>
+      <InputDiv>
+        <HeaderInput type="file" ref={inputFileRef} onChange={onChange} />
+        <HeaderInputButton key="123" onClick={onFileSelect}>
+          {filename}
+        </HeaderInputButton>
+
+        <form onSubmit={onSubmit}>
+          <HeaderButton type="submit">Upload</HeaderButton>
+        </form>
+      </InputDiv>
       <Progress percentage={uploadPercentage} />
+      <FormSubtitle>*$0.10 CAD per valid contact</FormSubtitle>
     </div>
   );
 };
