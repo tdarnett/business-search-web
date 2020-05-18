@@ -4,7 +4,7 @@ import { CardElement, Elements, useStripe, useElements } from '@stripe/react-str
 import axios from 'axios';
 import theme from '../styles/theme';
 
-const GENERATE_PAYMENT_INTENT_URL = 'https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/file-status';
+const GENERATE_PAYMENT_INTENT_URL = 'https://2o3xrfdfxd.execute-api.us-west-2.amazonaws.com/get/file-status';
 const CARD_OPTIONS = {
   iconStyle: 'solid',
   style: {

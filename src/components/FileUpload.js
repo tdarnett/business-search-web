@@ -86,9 +86,10 @@ const FileUpload = (props) => {
 
   const [message, setMessage] = useState('');
   const [uploadPercentage, setUploadPercentage] = useState(0);
-  const URLEndpoint = 'https://mft9fatmbi.execute-api.us-west-2.amazonaws.com/prod/action/pre-signed-url';
+  const URLEndpoint = 'https://2o3xrfdfxd.execute-api.us-west-2.amazonaws.com/post/pre-signed-url';
 
   const onFileSelect = () => {
+    // hacky workaround to hide the ugly upload file input
     inputFileRef.current.click();
   };
 
@@ -102,23 +103,16 @@ const FileUpload = (props) => {
 
     // first get the preauth url
     try {
-      console.log(filename);
       const res = await axios.post(URLEndpoint, {
         file_name: filename,
       });
 
-      // setMesssage(res.data);
-      console.log(res.data);
-      const uploadURL = res.data;
-
-      // now upload to new file
-      const formData = new FormData();
-      formData.append('file', file);
+      const uploadURL = res.data.url;
 
       try {
-        await axios.post(uploadURL, formData, {
+        await axios.put(uploadURL, file, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'text/csv',
           },
           onUploadProgress: (progressEvent) => {
             setUploadPercentage(parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total)));
@@ -147,9 +141,7 @@ const FileUpload = (props) => {
       {message ? <Message msg={message} /> : null}
       <InputDiv>
         <HeaderInput type="file" ref={inputFileRef} onChange={onChange} />
-        <HeaderInputButton key="123" onClick={onFileSelect}>
-          {filename}
-        </HeaderInputButton>
+        <HeaderInputButton onClick={onFileSelect}>{filename}</HeaderInputButton>
 
         <form onSubmit={onSubmit}>
           <HeaderButton type="submit">Upload</HeaderButton>
