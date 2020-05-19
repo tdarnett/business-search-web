@@ -4,6 +4,8 @@
   "description": "",
   "version": "0.1.0",
   "dependencies": {
+    "@stripe/react-stripe-js": "^1.1.2",
+    "@stripe/stripe-js": "^1.5.0",
     "axios": "^0.19.2",
     "gatsby": "^2.15.31",
     "gatsby-image": "^2.2.24",
@@ -22,10 +24,14 @@
     "react-dom": "^16.10.2",
     "react-feather": "^2.0.3",
     "react-helmet": "^5.2.1",
+    "react-polling": "^1.0.5",
     "react-scrollspy": "^3.4.0",
     "styled-components": "^4.4.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-react": "^7.20.0",
     "prettier": "^1.18.2"
   },
   "scripts": {
