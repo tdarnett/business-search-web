@@ -204,10 +204,8 @@ const CheckoutForm = (props) => {
   const elements = useElements();
   const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
-  const [clientSecret, setClientSecret] = useState('');
   const [disabled, setDisabled] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [amount, setAmount] = useState(0);
   const [billingDetails, setBillingDetails] = useState({
     email: '',
     name: '',
@@ -225,11 +223,12 @@ const CheckoutForm = (props) => {
       return;
     }
 
-    const payload = await stripe.confirmCardPayment(clientSecret, {
+    const payload = await stripe.confirmCardPayment(props.progressConfig.clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement),
         billing_details: billingDetails,
       },
+      receipt_email: billingDetails.email,
     });
     if (payload.error) {
       setError(`Payment failed ${payload.error.message}`);
@@ -238,30 +237,9 @@ const CheckoutForm = (props) => {
       setError(null);
       setProcessing(false);
       setSucceeded(true);
+      props.setProgressConfig({ step: 2 }); // show the success screen
     }
   };
-
-  useEffect(() => {
-    // Check to see if the file is completed and get payment intent
-    async function fetchPaymentIntent() {
-      try {
-        const res = await axios.get(GENERATE_PAYMENT_INTENT_URL, {
-          params: {
-            key: props.filename,
-          },
-        });
-        setAmount(res.data.amount / 100);
-        setClientSecret(res.data.client_secret);
-      } catch (err) {
-        if (err.response.status === 500) {
-          console.log('There was a problem with the server'); // TODO better error response
-        } else {
-          console.log(err.response.data.msg);
-        }
-      }
-    }
-    fetchPaymentIntent();
-  }, []);
 
   const handleChange = async (event) => {
     // Listen for changes in the CardElement
@@ -307,7 +285,7 @@ const CheckoutForm = (props) => {
           {processing ? (
             <Spinner />
           ) : (
-            `Pay ${amount.toLocaleString('en', {
+            `Pay ${props.progressConfig.amount.toLocaleString('en', {
               style: 'currency',
               currency: 'CAD',
               currencyDisplay: 'symbol',
@@ -326,7 +304,7 @@ const CheckoutForm = (props) => {
 const StripeCheckout = (props) => {
   return (
     <Elements stripe={props.stripePromise}>
-      <CheckoutForm filename={props.filename} />
+      <CheckoutForm progressConfig={props.progressConfig} setProgressConfig={props.setProgressConfig} />
     </Elements>
   );
 };

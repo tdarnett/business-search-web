@@ -10285,6 +10285,11 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-polling@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/react-polling/-/react-polling-1.0.5.tgz#4104e0716dd0399ecf156fc3ae14ba18c7e19a77"
+  integrity sha512-H6nC/f40P14oOXvQ9gi1a0S4Gd49eHy89g4EhKzLgSQwMzwtSxg70boTOArkXbwDVWvgd8qYckfLUsTEYcBpzw==
+
 react-reconciler@^0.21.0:
   version "0.21.0"
   resolved "https://registry.yarnpkg.com/react-reconciler/-/react-reconciler-0.21.0.tgz#8180342ab3c8295f860025a86d0a03742a294ea7"

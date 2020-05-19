@@ -3,6 +3,10 @@ import styled from 'styled-components';
 import Message from './Message';
 import Progress from './Progress';
 import axios from 'axios';
+import ReactPolling from 'react-polling';
+
+const GENERATE_PAYMENT_INTENT_URL = 'https://2o3xrfdfxd.execute-api.us-west-2.amazonaws.com/get/file-status';
+const FILE_STATUS_URL_WITH_KEY = `${GENERATE_PAYMENT_INTENT_URL}?key=`;
 
 const InputDiv = styled.div`
   display: flex;
@@ -83,7 +87,7 @@ const FileUpload = (props) => {
   const inputFileRef = useRef(null);
   const [file, setFile] = useState('');
   const [filename, setFilename] = useState('Choose File');
-
+  const [startPolling, setStartPolling] = useState(false);
   const [message, setMessage] = useState('');
   const [uploadPercentage, setUploadPercentage] = useState(0);
   const URLEndpoint = 'https://2o3xrfdfxd.execute-api.us-west-2.amazonaws.com/post/pre-signed-url';
@@ -122,7 +126,6 @@ const FileUpload = (props) => {
           },
         });
 
-        props.setUploadedFilename(filename); // pass in any info here
       } catch (err) {
         console.log(err);
         if (err.response.status === 500) {
@@ -131,6 +134,9 @@ const FileUpload = (props) => {
           setMessage(err.response.data.msg);
         }
       }
+
+      // poll file status
+      setStartPolling(true);
     } catch (err) {
       setMessage(err.response.data.msg);
     }
@@ -139,14 +145,43 @@ const FileUpload = (props) => {
   return (
     <div>
       {message ? <Message msg={message} /> : null}
-      <InputDiv>
-        <HeaderInput type="file" ref={inputFileRef} onChange={onChange} />
-        <HeaderInputButton onClick={onFileSelect}>{filename}</HeaderInputButton>
 
-        <form onSubmit={onSubmit}>
-          <HeaderButton type="submit">Upload</HeaderButton>
-        </form>
-      </InputDiv>
+      {!startPolling ? (
+        <InputDiv>
+          <HeaderInput type="file" ref={inputFileRef} onChange={onChange} />
+          <HeaderInputButton onClick={onFileSelect}>{filename}</HeaderInputButton>
+
+          <form onSubmit={onSubmit}>
+            <HeaderButton type="submit">Upload</HeaderButton>
+          </form>
+        </InputDiv>
+      ) : (
+        <ReactPolling
+          url={FILE_STATUS_URL_WITH_KEY + filename}
+          interval={5000} // in milliseconds(ms)
+          retryCount={20} // this is optional
+          onSuccess={(data) => {
+            props.setProgressConfig({
+              step: 1,
+              filename: filename,
+              clientSecret: data.client_secret,
+              amount: data.amount / 100, // convert to dollars
+            });
+            return false;
+          }}
+          method={'GET'}
+          render={({ startPolling, stopPolling, isPolling }) => {
+            if (isPolling) {
+              console.log('he!');
+              return <div> Hello I am polling</div>;
+            } else {
+              console.log('ha!');
+              // props.setUploadedFilename(filename); // pass in any info here}
+              return <div> Hello I stopped polling</div>;
+            }
+          }}
+        />
+      )}
       <Progress percentage={uploadPercentage} />
       <FormSubtitle>*$0.10 CAD per valid contact</FormSubtitle>
     </div>
