@@ -1,12 +1,33 @@
 import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Message from './Message';
 import Progress from './Progress';
 import axios from 'axios';
 import ReactPolling from 'react-polling';
+import theme from '../styles/theme';
 
 const GENERATE_PAYMENT_INTENT_URL = 'https://2o3xrfdfxd.execute-api.us-west-2.amazonaws.com/get/file-status';
 const FILE_STATUS_URL_WITH_KEY = `${GENERATE_PAYMENT_INTENT_URL}?key=`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const Loader = styled.div`
+  border: 10px solid #f3f3f3; /* Light grey */
+  border-top: 10px solid ${theme.color.secondary};
+  border-radius: 50%;
+  width: 50px;
+  position: relative;
+  left: 40%;
+  height: 50px;
+  animation: ${spin} 2s linear infinite;
+`;
 
 const InputDiv = styled.div`
   display: flex;
@@ -123,8 +144,7 @@ const FileUpload = (props) => {
             'Content-Type': 'text/csv',
           },
           onUploadProgress: (progressEvent) => {
-            // divide by two so we track the get payment intent for second half of upload
-            setUploadPercentage(parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total) / 2));
+            setUploadPercentage(parseInt(Math.round(progressEvent.loaded * 100) / progressEvent.total));
 
             // Clear percentage
             setTimeout(() => setUploadPercentage(0), 10000);
@@ -151,16 +171,19 @@ const FileUpload = (props) => {
       {message ? <Message msg={message} /> : null}
 
       {!startPolling ? (
-        <InputDiv>
-          <HeaderInput type="file" ref={inputFileRef} onChange={onChange} />
-          <HeaderInputButton onClick={onFileSelect}>{filename}</HeaderInputButton>
+        <>
+          <InputDiv>
+            <HeaderInput type="file" ref={inputFileRef} onChange={onChange} />
+            <HeaderInputButton onClick={onFileSelect}>{filename}</HeaderInputButton>
 
-          <form onSubmit={onSubmit}>
-            <HeaderButton disabled={filename === 'Choose File'} type="submit">
-              Upload
-            </HeaderButton>
-          </form>
-        </InputDiv>
+            <form onSubmit={onSubmit}>
+              <HeaderButton disabled={filename === 'Choose File'} type="submit">
+                Upload
+              </HeaderButton>
+            </form>
+          </InputDiv>
+          <FormSubtitle>*$0.10 CAD per valid contact</FormSubtitle>
+        </>
       ) : (
         <ReactPolling
           url={FILE_STATUS_URL_WITH_KEY + filename}
@@ -181,13 +204,16 @@ const FileUpload = (props) => {
             return setUploadPercentage((100 - uploadPercentage) / 2 + uploadPercentage);
           }}
           method={'GET'}
-          render={() => {
-            return <div></div>;
+          render={({ isPolling, stopPolling }) => {
+            if (isPolling) {
+              return <Loader />;
+            } else if (stopPolling) {
+              return <div></div>;
+            }
           }}
         />
       )}
-      <Progress percentage={uploadPercentage} />
-      <FormSubtitle>*$0.10 CAD per valid contact</FormSubtitle>
+      {uploadPercentage === 0 || uploadPercentage === 100 ? null : <Progress percentage={uploadPercentage} />}
     </div>
   );
 };

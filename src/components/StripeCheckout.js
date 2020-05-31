@@ -156,7 +156,7 @@ const Spinner = styled.div`
     top: 0;
     left: 0;
     content: '';
-  } 
+  }
 `;
 
 const StyledCardElement = styled(CardElement)`
@@ -268,16 +268,14 @@ const CheckoutForm = (props) => {
 
       <SubmitButton disabled={processing || disabled || succeeded}>
         <span id="button-text">
-          {processing ? (
-            <Spinner />
-          ) : (
-            `Pay ${props.progressConfig.amount.toLocaleString('en', {
-              style: 'currency',
-              currency: 'CAD',
-              currencyDisplay: 'symbol',
-              maximumFractionDigits: 2,
-            })}`
-          )}
+          {processing
+            ? 'Processing...'
+            : `Pay ${props.progressConfig.amount.toLocaleString('en', {
+                style: 'currency',
+                currency: 'CAD',
+                currencyDisplay: 'symbol',
+                maximumFractionDigits: 2,
+              })}`}
         </span>
       </SubmitButton>
     </Form>
