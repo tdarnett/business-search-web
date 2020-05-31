@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CardElement, Elements, useStripe, useElements } from '@stripe/react-stripe-js';
-import axios from 'axios';
 import theme from '../styles/theme';
 
-const GENERATE_PAYMENT_INTENT_URL = 'https://2o3xrfdfxd.execute-api.us-west-2.amazonaws.com/get/file-status';
 const CARD_OPTIONS = {
   iconStyle: 'solid',
   style: {
@@ -130,47 +128,35 @@ const FormGroup = styled.fieldset`
 `;
 // TODO fix spinner
 const Spinner = styled.div`
-  color: #ffffff;
   font-size: 22px;
-  text-indent: -99999px;
-  margin: 0px auto;
+  margin: 50px auto;
+  text-indent: -9999em;
+  width: 11em;
+  height: 11em;
+  border-radius: 50%;
+  background: #ffffff;
+  background: -moz-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+  background: -webkit-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+  background: -o-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+  background: -ms-linear-gradient(left, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
+  background: linear-gradient(to right, #ffffff 10%, rgba(255, 255, 255, 0) 42%);
   position: relative;
-  width: 20px;
-  height: 20px;
-  box-shadow: inset 0 0 0 2px;
+  -webkit-animation: load3 1.4s infinite linear;
+  animation: load3 1.4s infinite linear;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);
 
   &:before {
-    width: 10.4px;
-    height: 20.4px;
-    background: #5469d4;
-    border-radius: 20.4px 0 0 20.4px;
-    top: -0.2px;
-    left: -0.2px;
-    -webkit-transform-origin: 10.4px 10.2px;
-    transform-origin: 10.4px 10.2px;
-    -webkit-animation: loading 2s infinite ease 1.5s;
-    animation: loading 2s infinite ease 1.5s;
+    width: 50%;
+    height: 50%;
+    background: #ffffff;
+    border-radius: 100% 0 0 0;
     position: absolute;
+    top: 0;
+    left: 0;
     content: '';
-  }
-
-  &.after {
-    width: 10.4px;
-    height: 10.2px;
-    background: #5469d4;
-    border-radius: 0 10.2px 10.2px 0;
-    top: -0.1px;
-    left: 10.2px;
-    -webkit-transform-origin: 0px 10.2px;
-    transform-origin: 0px 10.2px;
-    -webkit-animation: loading 2s infinite ease;
-    animation: loading 2s infinite ease;
-    position: absolute;
-    content: '';
-  }
+  } 
 `;
 
 const StyledCardElement = styled(CardElement)`
@@ -294,9 +280,6 @@ const CheckoutForm = (props) => {
           )}
         </span>
       </SubmitButton>
-
-      {/* Show a success message upon completion TODO make this more visible */}
-      {succeeded && <p>Payment succeeded, please check your inbox!</p>}
     </Form>
   );
 };

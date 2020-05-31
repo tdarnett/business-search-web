@@ -72,6 +72,10 @@ const HeaderButton = styled.button`
   &:hover {
     box-shadow: rgba(110, 120, 152, 0.22) 0px 2px 10px 0px;
   }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
   @media (max-width: ${(props) => props.theme.screen.md}) {
   }
   @media (max-width: ${(props) => props.theme.screen.sm}) {
@@ -119,13 +123,13 @@ const FileUpload = (props) => {
             'Content-Type': 'text/csv',
           },
           onUploadProgress: (progressEvent) => {
-            setUploadPercentage(parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total)));
+            // divide by two so we track the get payment intent for second half of upload
+            setUploadPercentage(parseInt(Math.round((progressEvent.loaded * 100) / progressEvent.total) / 2));
 
             // Clear percentage
             setTimeout(() => setUploadPercentage(0), 10000);
           },
         });
-
       } catch (err) {
         console.log(err);
         if (err.response.status === 500) {
@@ -152,7 +156,9 @@ const FileUpload = (props) => {
           <HeaderInputButton onClick={onFileSelect}>{filename}</HeaderInputButton>
 
           <form onSubmit={onSubmit}>
-            <HeaderButton type="submit">Upload</HeaderButton>
+            <HeaderButton disabled={filename === 'Choose File'} type="submit">
+              Upload
+            </HeaderButton>
           </form>
         </InputDiv>
       ) : (
@@ -161,6 +167,7 @@ const FileUpload = (props) => {
           interval={5000} // in milliseconds(ms)
           retryCount={20} // this is optional
           onSuccess={(data) => {
+            setUploadPercentage(100);
             props.setProgressConfig({
               step: 1,
               filename: filename,
@@ -169,16 +176,13 @@ const FileUpload = (props) => {
             });
             return false;
           }}
+          onFailure={() => {
+            // will retry so show progress bar progression
+            return setUploadPercentage((100 - uploadPercentage) / 2 + uploadPercentage);
+          }}
           method={'GET'}
-          render={({ startPolling, stopPolling, isPolling }) => {
-            if (isPolling) {
-              console.log('he!');
-              return <div> Hello I am polling</div>;
-            } else {
-              console.log('ha!');
-              // props.setUploadedFilename(filename); // pass in any info here}
-              return <div> Hello I stopped polling</div>;
-            }
+          render={() => {
+            return <div></div>;
           }}
         />
       )}

@@ -23,7 +23,7 @@ const Header = () => {
     }
   `);
 
-  const [progressConfig, setProgressConfig] = useState({ step: 0, filename: '', amount: null, clientSecret: null});
+  const [progressConfig, setProgressConfig] = useState({ step: 0, filename: '', amount: null, clientSecret: null });
 
   return (
     <HeaderWrapper id="top">
@@ -34,14 +34,16 @@ const Header = () => {
             <h1>Speed up your business development.</h1>
             <h2>Upload your list of business leads and get their business information in one fell swoop.</h2>
 
-            {progressConfig.step === 0 && (
-              <FileUpload setProgressConfig={setProgressConfig} />
-            )}
+            {progressConfig.step === 0 && <FileUpload setProgressConfig={setProgressConfig} />}
             {progressConfig.step === 1 && (
-              <StripeCheckout stripePromise={stripePromise} progressConfig={progressConfig} setProgressConfig={setProgressConfig}/>
+              <StripeCheckout
+                stripePromise={stripePromise}
+                progressConfig={progressConfig}
+                setProgressConfig={setProgressConfig}
+              />
             )}
             {progressConfig.step === 2 && (
-              <div>SUCCESS!</div>
+              <div>Payment succeeded, please check your inbox! Refresh to use this again :)</div>
             )}
           </HeaderTextGroup>
           <ImageWrapper>
