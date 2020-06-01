@@ -5,7 +5,7 @@ import { Menu, X } from 'react-feather';
 import { toKebabCase } from '../../../utils';
 
 import { Container } from '../../global';
-import { Nav, NavItem, Brand, StyledContainer, NavListWrapper, MobileMenu, Mobile, ActionsContainer } from './style';
+import { Nav, NavItem, Brand, StyledContainer, NavListWrapper, MobileMenu, Mobile } from './style';
 
 const NAV_ITEMS = ['How it works'];
 
