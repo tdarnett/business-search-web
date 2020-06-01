@@ -6,7 +6,7 @@ import { Container } from '../global';
 const Footer = () => (
   <FooterWrapper id="footer">
     <BrandContainer>
-      <Logo>Finance</Logo>
+      <Logo>Business Search</Logo>
     </BrandContainer>
   </FooterWrapper>
 );

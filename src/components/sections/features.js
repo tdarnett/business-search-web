@@ -10,28 +10,24 @@ const HowItWorks = () => (
       <SectionTitle>Work Smarter</SectionTitle>
       <FeaturesGrid>
         <FeatureItem>
-          <FeatureTitle>Import CSV</FeatureTitle>
+          <FeatureTitle>1. Import CSV</FeatureTitle>
           <FeatureText>
-            Upload a csv of containing:
-            <li>the business name</li>
-            <li>city of operation</li>
-            <li>rovince of operation</li>
-            for any business you wish to get expanded contact or location information for.
+            Upload a csv of containing the business name, city of operation and province of operation for any business
+            you wish to get expanded contact or location information for.
           </FeatureText>
         </FeatureItem>
         <FeatureItem>
-          <FeatureTitle>Enter your payment information</FeatureTitle>
+          <FeatureTitle>2. Enter payment info</FeatureTitle>
           <FeatureText>
             Upon a successful upload, enter in your payment information to receive the list of contacts.
           </FeatureText>
         </FeatureItem>
         <FeatureItem>
-          <FeatureTitle>Check your inbox</FeatureTitle>
-          <FeatureText>
-            Your receipt and resulting file will be emailed to you.
-          </FeatureText>
+          <FeatureTitle>3. Check your inbox</FeatureTitle>
+          <FeatureText>Your receipt and resulting file will be emailed to you.</FeatureText>
         </FeatureItem>
       </FeaturesGrid>
+      <Note>This is a proof of concept. You may use Stripe test credentials to try this out.</Note>
     </StyledContainer>
   </Section>
 );
@@ -57,9 +53,9 @@ const Subtitle = styled.h5`
 `;
 
 const FeaturesGrid = styled.div`
-  max-width: 670px;
+  max-width: 1100px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   margin: 0px auto;
   grid-column-gap: 40px;
   grid-row-gap: 35px;
@@ -71,7 +67,6 @@ const FeaturesGrid = styled.div`
 
 const FeatureItem = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
   flex-direction: column;
 `;
@@ -85,4 +80,11 @@ const FeatureTitle = styled.h4`
 
 const FeatureText = styled.p`
   text-align: center;
+`;
+
+const Note = styled.h5`
+  color: ${(props) => props.theme.color.primary};
+  text-align: center;
+  margin-top: 80px;
+  font-style: italic;
 `;
